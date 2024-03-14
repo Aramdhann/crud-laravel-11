@@ -102,4 +102,15 @@ class ProductController extends Controller
 
         return redirect()->route('products.index')->with(['success' => 'Data berhasil di update!']);
     }
+
+    public function destroy($id): RedirectResponse
+    {
+        $product = Product::findOrFail($id);
+
+        Storage::delete('public/products/'.$product->image);
+
+        $product->delete();
+
+        return redirect()->route('products.index')->with(['success' => 'Data berhasil dihapus!']);
+    }
 }
