@@ -45,4 +45,16 @@ class ProductController extends Controller
 
         return redirect()->route('products.index')->with(['success' => 'Data Berhasil Disimpan!']);
     }
+
+    public function show(string $id): View
+    {
+        $product = Product::findOrFail($id);
+
+        return view('products.show', compact('product'));
+    }
+
+    // public function edit(): 
+    // {
+    //     # code...
+    // }
 }
