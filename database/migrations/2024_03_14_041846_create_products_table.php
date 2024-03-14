@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('title');
             $table->text('description');
             $table->bigInteger('price');
-            $table->int('stock')->default(0);
+            $table->integer('stock')->default(0);
             $table->timestamps();
         });
     }
