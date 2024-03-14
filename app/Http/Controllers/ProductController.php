@@ -3,10 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\View\View;
-use Illuminate\Validation\Validator;
+use Illuminate\Http\Request;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
@@ -53,8 +53,53 @@ class ProductController extends Controller
         return view('products.show', compact('product'));
     }
 
-    // public function edit(): 
-    // {
-    //     # code...
-    // }
+    public function edit(string $id): View
+    {
+        $product = Product::findOrFail($id);
+
+        return view('products.edit', compact('product'));
+    }
+
+    public function update(Request $request, $id): RedirectResponse
+    {
+        $request->validate([
+            'image' => 'image|mimes:jpeg,jpg,png|max:2048',
+            'title' => 'required|min:5',
+            'description' => 'required|min:10',
+            'price' => 'required|numeric',
+            'stock' => 'required|numeric'
+        ]);
+        
+        $product = Product::findOrFail($id);
+
+        if ($request->hasFile('image')) {
+            // get data new image and save new image
+            $image = $request->file('image');
+            $image->storeAs('public/products', $image->hashName());
+
+            // delete old data image
+            Storage::delete('public/products'.$product->image);
+
+            // process to update all data also the new image
+            $product->update([
+                'image' => $image->hashName(),
+                'title' => $request->title,
+                'description' => $request->description,
+                'price' => $request->price,
+                'stock' => $request->stock
+            ]);
+
+        } else {
+
+            //update product without image
+            $product->update([
+                'title'         => $request->title,
+                'description'   => $request->description,
+                'price'         => $request->price,
+                'stock'         => $request->stock
+            ]);
+        }
+
+        return redirect()->route('products.index')->with(['success' => 'Data berhasil di update!']);
+    }
 }
